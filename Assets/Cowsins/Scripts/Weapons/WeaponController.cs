@@ -1,6 +1,7 @@
 /// <summary>
 /// This script belongs to cowsins™ as a part of the cowsins´ FPS Engine. All rights reserved. 
 /// </summary>
+
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -12,30 +13,36 @@ using UnityEditor.Presets;
 #endif
 
 #region others
+
 [System.Serializable]
 public class Events
 {
     public UnityEvent OnShoot, OnReload, OnFinishReload, OnAim, OnAiming, OnStopAim, OnHit, OnInventorySlotChanged;
 }
+
 [System.Serializable]
 public class Effects
 {
     public GameObject grassImpact, metalImpact, mudImpact, woodImpact, enemyImpact;
 }
+
 [System.Serializable]
 public class CustomShotMethods
 {
     public Weapon_SO weapon;
     public UnityEvent OnShoot;
 }
+
 #endregion
 
 public class WeaponController : MonoBehaviour
 {
     //References
-    [Tooltip("Attach your weapon scriptable objects here.")] public Weapon_SO[] weapons;
+    [Tooltip("Attach your weapon scriptable objects here.")]
+    public Weapon_SO[] weapons;
 
-    [Tooltip("An array that includes all your initial weapons.")]public Weapon_SO[] initialWeapons;
+    [Tooltip("An array that includes all your initial weapons.")]
+    public Weapon_SO[] initialWeapons;
 
     public WeaponIdentification[] inventory;
 
@@ -45,7 +52,8 @@ public class WeaponController : MonoBehaviour
 
     [Tooltip("Attach your main camera")] public Camera mainCamera;
 
-    [Tooltip("Attach your camera pivot object")] public Transform cameraPivot;
+    [Tooltip("Attach your camera pivot object")]
+    public Transform cameraPivot;
 
     private Transform[] firePoint;
 
@@ -55,23 +63,33 @@ public class WeaponController : MonoBehaviour
 
     //Variables
 
-    [Tooltip("max amount of weapons you can have")] public int inventorySize;
+    [Tooltip("max amount of weapons you can have")]
+    public int inventorySize;
 
-    [SerializeField, HideInInspector]
-    public bool isAiming;
+    [SerializeField, HideInInspector] public bool isAiming;
 
     private bool reloading;
-    public bool Reloading { get { return reloading; } set { reloading = value; } }
 
-    [Tooltip("If true you won´t have to press the reload button when you run out of bullets")] public bool autoReload;
+    public bool Reloading
+    {
+        get { return reloading; }
+        set { reloading = value; }
+    }
 
-    [Tooltip("If false, hold to aim, and release to stop aiming.")] public bool alternateAiming;
+    [Tooltip("If true you won´t have to press the reload button when you run out of bullets")]
+    public bool autoReload;
 
-    [Tooltip("What objects should be hit")] public LayerMask hitLayer;
+    [Tooltip("If false, hold to aim, and release to stop aiming.")]
+    public bool alternateAiming;
 
-    [Tooltip("Do you want to resize your crosshair on shooting ? "), SerializeField] private bool resizeCrosshair;
+    [Tooltip("What objects should be hit")]
+    public LayerMask hitLayer;
 
-    [Tooltip("Do not draw the crosshair when aiming a weapon")] public bool removeCrosshairOnAiming;
+    [Tooltip("Do you want to resize your crosshair on shooting ? "), SerializeField]
+    private bool resizeCrosshair;
+
+    [Tooltip("Do not draw the crosshair when aiming a weapon")]
+    public bool removeCrosshairOnAiming;
 
     public bool canMelee;
 
@@ -81,17 +99,25 @@ public class WeaponController : MonoBehaviour
 
     [SerializeField] private Animator holsterMotionObject;
 
-    public float meleeDuration, meleeAttackDamage, meleeRange, meleeCamShakeAmount, meleeDelay, reEnableMeleeAfterAction;
+    public float meleeDuration,
+        meleeAttackDamage,
+        meleeRange,
+        meleeCamShakeAmount,
+        meleeDelay,
+        reEnableMeleeAfterAction;
 
     private float spread;
 
 
     //UI
-    [Tooltip("Attach the appropriate UI here")] public TextMeshProUGUI bulletsUI, magazineUI, reloadUI, lowAmmoUI;
+    [Tooltip("Attach the appropriate UI here")]
+    public TextMeshProUGUI bulletsUI, magazineUI, reloadUI, lowAmmoUI;
 
-    [Tooltip("Display an icon of your current weapon")] public Image currentWeaponDisplay;
+    [Tooltip("Display an icon of your current weapon")]
+    public Image currentWeaponDisplay;
 
-    [Tooltip(" Attach the CanvasGroup that contains the inventory")] public CanvasGroup inventoryContainer;
+    [Tooltip(" Attach the CanvasGroup that contains the inventory")]
+    public CanvasGroup inventoryContainer;
 
     // Effects
     public Effects effects;
@@ -99,8 +125,9 @@ public class WeaponController : MonoBehaviour
     public Events events;
 
     [Tooltip("Used for weapons with custom shot method. Here, " +
-        "you can attach your scriptable objects and assign the method you want to call on shoot. " +
-        "Please only assign those scriptable objects that use custom shot methods, Otherwise it won´t work or you will run into issues.")]public CustomShotMethods[] customShot;
+             "you can attach your scriptable objects and assign the method you want to call on shoot. " +
+             "Please only assign those scriptable objects that use custom shot methods, Otherwise it won´t work or you will run into issues.")]
+    public CustomShotMethods[] customShot;
 
     public UnityEvent customMethod;
 
@@ -163,8 +190,10 @@ public class WeaponController : MonoBehaviour
 
         events.OnAiming.Invoke();
         Vector3 newPos = weapon.aimingPosition; // Get the weapon aimingPosition
-        weaponHolder.localPosition = Vector3.Lerp(weaponHolder.transform.localPosition, newPos, weapon.aimingSpeed * Time.deltaTime);
-        weaponHolder.localRotation = Quaternion.Lerp(weaponHolder.transform.localRotation, Quaternion.Euler(weapon.aimingRotation), weapon.aimingSpeed * Time.deltaTime);
+        weaponHolder.localPosition = Vector3.Lerp(weaponHolder.transform.localPosition, newPos,
+            weapon.aimingSpeed * Time.deltaTime);
+        weaponHolder.localRotation = Quaternion.Lerp(weaponHolder.transform.localRotation,
+            Quaternion.Euler(weapon.aimingRotation), weapon.aimingSpeed * Time.deltaTime);
     }
 
     public void StopAim()
@@ -177,8 +206,10 @@ public class WeaponController : MonoBehaviour
 
         Vector3 newPos = Vector3.zero;
         // Change the position and FOV
-        weaponHolder.localPosition = Vector3.Lerp(weaponHolder.transform.localPosition, newPos, aimingSpeed * Time.deltaTime);
-        weaponHolder.localRotation = Quaternion.Lerp(weaponHolder.transform.localRotation, Quaternion.Euler(newPos), aimingSpeed * Time.deltaTime);
+        weaponHolder.localPosition =
+            Vector3.Lerp(weaponHolder.transform.localPosition, newPos, aimingSpeed * Time.deltaTime);
+        weaponHolder.localRotation = Quaternion.Lerp(weaponHolder.transform.localRotation, Quaternion.Euler(newPos),
+            aimingSpeed * Time.deltaTime);
     }
 
     private float aimingSpeed;
@@ -186,8 +217,11 @@ public class WeaponController : MonoBehaviour
     private void HandleAimingMotion()
     {
         aimingSpeed = (weapon != null) ? weapon.aimingSpeed : 2;
-        if (isAiming && weapon != null) mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, weapon.aimingFOV, weapon.aimingSpeed * Time.deltaTime);
+        if (isAiming && weapon != null)
+            mainCamera.fieldOfView =
+                Mathf.Lerp(mainCamera.fieldOfView, weapon.aimingFOV, weapon.aimingSpeed * Time.deltaTime);
     }
+
     public void Shoot()
     {
         int shootstyle = (int)weapon.shootStyle;
@@ -200,7 +234,9 @@ public class WeaponController : MonoBehaviour
                 bulletsPerFire = weapon.bulletsPerFire;
                 StartCoroutine(HandleShooting());
             }
-            if (weapon.timeBetweenShots == 0) SoundManager.Instance.PlaySound(weapon.audioSFX.firing, 0, weapon.pitchVariationFiringSFX, 0);
+
+            if (weapon.timeBetweenShots == 0)
+                SoundManager.Instance.PlaySound(weapon.audioSFX.firing, 0, weapon.pitchVariationFiringSFX, 0);
             Invoke("CanShoot", weapon.fireRate);
         }
         else if (shootstyle == 2) //Melee
@@ -222,6 +258,7 @@ public class WeaponController : MonoBehaviour
             CustomShotMethod();
         }
     }
+
     private void SelectCustomShotMethod()
     {
         // Iterate through each item in the array
@@ -235,8 +272,10 @@ public class WeaponController : MonoBehaviour
             }
         }
 
-        Debug.LogError("Appropriate weapon scriptable object not found in the custom shot array (under the events tab). Please, configure the weapon scriptable object and the suitable method to fix this error");
+        Debug.LogError(
+            "Appropriate weapon scriptable object not found in the custom shot array (under the events tab). Please, configure the weapon scriptable object and the suitable method to fix this error");
     }
+
     private void CustomShotMethod() => customMethod?.Invoke();
 
     private IEnumerator HandleShooting()
@@ -257,6 +296,7 @@ public class WeaponController : MonoBehaviour
                 b.GetComponent<Rigidbody>().AddForce(mainCamera.transform.up * 5, ForceMode.Impulse);
             }
         }
+
         // Rest the bullets that have just been shot
         if (!weapon.infiniteBullets)
             id.bulletsLeftInMagazine -= weapon.ammoCostPerFire;
@@ -277,22 +317,29 @@ public class WeaponController : MonoBehaviour
                     // Determine if we want to add an effect for FOV
                     if (weapon.applyFOVEffectOnShooting)
                     {
-                        if (isAiming) mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.AimingFOVValueToSubstract;
+                        if (isAiming)
+                            mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.AimingFOVValueToSubstract;
                         else mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.FOVValueToSubstract;
                     }
+
                     foreach (var p in firePoint)
                     {
                         if (weapon.muzzleVFX != null)
-                            Instantiate(weapon.muzzleVFX, p.position, mainCamera.transform.rotation, mainCamera.transform); // VFX
+                            Instantiate(weapon.muzzleVFX, p.position, mainCamera.transform.rotation,
+                                mainCamera.transform); // VFX
                     }
-                    StartCoroutine(CowsinsUtilities.PlayAnim("shooting", inventory[currentWeapon].GetComponentInChildren<Animator>()));
-                    if (weapon.timeBetweenShots != 0) SoundManager.Instance.PlaySound(weapon.audioSFX.firing, 0, weapon.pitchVariationFiringSFX, 0);
+
+                    StartCoroutine(CowsinsUtilities.PlayAnim("shooting",
+                        inventory[currentWeapon].GetComponentInChildren<Animator>()));
+                    if (weapon.timeBetweenShots != 0)
+                        SoundManager.Instance.PlaySound(weapon.audioSFX.firing, 0, weapon.pitchVariationFiringSFX, 0);
 
                     ProgressRecoil();
 
                     yield return new WaitForSeconds(weapon.timeBetweenShots);
                     i++;
                 }
+
                 yield break;
             case 1: // projectile   
                 i = 0;
@@ -306,32 +353,42 @@ public class WeaponController : MonoBehaviour
                     // Determine if we want to add an effect for FOV
                     if (weapon.applyFOVEffectOnShooting)
                     {
-                        if (isAiming) mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.AimingFOVValueToSubstract;
+                        if (isAiming)
+                            mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.AimingFOVValueToSubstract;
                         else mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.FOVValueToSubstract;
                     }
+
                     foreach (var p in firePoint)
                     {
                         if (weapon.muzzleVFX != null)
-                            Instantiate(weapon.muzzleVFX, p.position, mainCamera.transform.rotation, mainCamera.transform); // VFX
+                            Instantiate(weapon.muzzleVFX, p.position, mainCamera.transform.rotation,
+                                mainCamera.transform); // VFX
                     }
-                    StartCoroutine(CowsinsUtilities.PlayAnim("shooting", inventory[currentWeapon].GetComponentInChildren<Animator>()));
-                    if (weapon.timeBetweenShots != 0) SoundManager.Instance.PlaySound(weapon.audioSFX.firing, 0, weapon.pitchVariationFiringSFX, 0);
+
+                    StartCoroutine(CowsinsUtilities.PlayAnim("shooting",
+                        inventory[currentWeapon].GetComponentInChildren<Animator>()));
+                    if (weapon.timeBetweenShots != 0)
+                        SoundManager.Instance.PlaySound(weapon.audioSFX.firing, 0, weapon.pitchVariationFiringSFX, 0);
 
                     ProgressRecoil();
 
                     yield return new WaitForSeconds(weapon.timeBetweenShots);
                     i++;
                 }
+
                 break;
             case 2:
                 MeleeAttack(weapon.attackRange, weapon.damagePerHit);
                 CamShake.instance.ShootShake(weapon.camShakeAmount);
                 // Determine if we want to add an effect for FOV
-                if (weapon.applyFOVEffectOnShooting) mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.FOVValueToSubstract;
-                StartCoroutine(CowsinsUtilities.PlayAnim("shooting", inventory[currentWeapon].GetComponentInChildren<Animator>()));
+                if (weapon.applyFOVEffectOnShooting)
+                    mainCamera.fieldOfView = mainCamera.fieldOfView - weapon.FOVValueToSubstract;
+                StartCoroutine(CowsinsUtilities.PlayAnim("shooting",
+                    inventory[currentWeapon].GetComponentInChildren<Animator>()));
                 break;
         }
     }
+
     /// <summary>
     /// Hitscan weapons send a raycast that IMMEDIATELY hits the target.
     /// That is why this shooting method is mostly used for pistols, snipers, rifles or SMGs
@@ -361,12 +418,14 @@ public class WeaponController : MonoBehaviour
             {
                 if (hitObj != newHit.collider.transform)
                 {
-                    float dmg_ = weapon.damagePerBullet * GetComponent<PlayerStats>().damageMultiplier * weapon.penetrationDamageReduction;
+                    float dmg_ = weapon.damagePerBullet * GetComponent<PlayerStats>().damageMultiplier *
+                                 weapon.penetrationDamageReduction;
                     Hit(newHit.collider.gameObject.layer, dmg_, newHit, true);
                 }
             }
         }
     }
+
     /// <summary>
     /// projectile shooting spawns a projectile
     /// Add a rigidbody to your bullet gameObject to make a curved trajectory
@@ -378,7 +437,9 @@ public class WeaponController : MonoBehaviour
         if (resizeCrosshair && crosshair != null) crosshair.Resize(weapon.crosshairResize * 100);
 
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(.5f, .5f, 0f));
-        Vector3 destination = (Physics.Raycast(ray, out hit) && !hit.transform.CompareTag("Player")) ? destination = hit.point + CowsinsUtilities.GetSpreadDirection(weapon.spreadAmount, mainCamera) : destination = ray.GetPoint(50f) + CowsinsUtilities.GetSpreadDirection(weapon.spreadAmount, mainCamera);
+        Vector3 destination = (Physics.Raycast(ray, out hit) && !hit.transform.CompareTag("Player"))
+            ? destination = hit.point + CowsinsUtilities.GetSpreadDirection(weapon.spreadAmount, mainCamera)
+            : destination = ray.GetPoint(50f) + CowsinsUtilities.GetSpreadDirection(weapon.spreadAmount, mainCamera);
 
         foreach (var p in firePoint)
         {
@@ -400,6 +461,7 @@ public class WeaponController : MonoBehaviour
             bullet.duration = weapon.bulletDuration;
         }
     }
+
     /// <summary>
     /// Moreover, cowsins´ FPS ENGINE also supports melee attacking
     /// Use this for Swords, knives etc
@@ -408,7 +470,9 @@ public class WeaponController : MonoBehaviour
     {
         events.OnShoot.Invoke();
 
-        Collider[] col = Physics.OverlapSphere(transform.position + mainCamera.transform.parent.forward * attackRange / 2, attackRange, hitLayer);
+        Collider[] col =
+            Physics.OverlapSphere(transform.position + mainCamera.transform.parent.forward * attackRange / 2,
+                attackRange, hitLayer);
 
         float dmg = damage * GetComponent<PlayerStats>().damageMultiplier;
 
@@ -419,7 +483,6 @@ public class WeaponController : MonoBehaviour
                 if (c.CompareTag("Critical")) c.transform.parent.GetComponent<IDamageable>().Damage(dmg);
                 else c.GetComponent<IDamageable>().Damage(dmg);
             }
-
         }
 
         //VISUALS
@@ -429,6 +492,7 @@ public class WeaponController : MonoBehaviour
             Hit(hit.collider.gameObject.layer, 0f, hit, false);
         }
     }
+
     public void SecondaryMeleeAttack()
     {
         CanMelee = false;
@@ -472,22 +536,26 @@ public class WeaponController : MonoBehaviour
             case 11:
                 impact = Instantiate(effects.metalImpact, h.point, Quaternion.identity); // Metal
                 impact.transform.rotation = Quaternion.LookRotation(h.normal);
-                if (weapon != null) impactBullet = Instantiate(weapon.bulletHoleImpact.metalImpact, h.point, Quaternion.identity);
+                if (weapon != null)
+                    impactBullet = Instantiate(weapon.bulletHoleImpact.metalImpact, h.point, Quaternion.identity);
                 break;
             case 12:
                 impact = Instantiate(effects.mudImpact, h.point, Quaternion.identity); // Mud
                 impact.transform.rotation = Quaternion.LookRotation(h.normal);
-                if (weapon != null) impactBullet = Instantiate(weapon.bulletHoleImpact.mudImpact, h.point, Quaternion.identity);
+                if (weapon != null)
+                    impactBullet = Instantiate(weapon.bulletHoleImpact.mudImpact, h.point, Quaternion.identity);
                 break;
             case 13:
                 impact = Instantiate(effects.woodImpact, h.point, Quaternion.identity); // Wood
                 impact.transform.rotation = Quaternion.LookRotation(h.normal);
-                if (weapon != null) impactBullet = Instantiate(weapon.bulletHoleImpact.woodImpact, h.point, Quaternion.identity);
+                if (weapon != null)
+                    impactBullet = Instantiate(weapon.bulletHoleImpact.woodImpact, h.point, Quaternion.identity);
                 break;
             case 7:
                 impact = Instantiate(effects.enemyImpact, h.point, Quaternion.identity); // Enemy
                 impact.transform.rotation = Quaternion.LookRotation(h.normal);
-                if (weapon != null) impactBullet = Instantiate(weapon.bulletHoleImpact.enemyImpact, h.point, Quaternion.identity);
+                if (weapon != null)
+                    impactBullet = Instantiate(weapon.bulletHoleImpact.enemyImpact, h.point, Quaternion.identity);
                 break;
         }
 
@@ -499,8 +567,12 @@ public class WeaponController : MonoBehaviour
 
         // Apply damage
         if (!damageTarget) return;
-        if (h.collider.gameObject.CompareTag("Critical")) h.collider.transform.parent.GetComponent<IDamageable>().Damage(damage * weapon.criticalDamageMultiplier * GetDistanceDamageReduction(h.collider.transform));
-        else if (h.collider.GetComponent<IDamageable>() != null) h.collider.GetComponent<IDamageable>().Damage(damage * GetDistanceDamageReduction(h.collider.transform));
+        if (h.collider.gameObject.CompareTag("Critical"))
+            h.collider.transform.parent.GetComponent<IDamageable>().Damage(damage * weapon.criticalDamageMultiplier *
+                                                                           GetDistanceDamageReduction(h.collider
+                                                                               .transform));
+        else if (h.collider.GetComponent<IDamageable>() != null)
+            h.collider.GetComponent<IDamageable>().Damage(damage * GetDistanceDamageReduction(h.collider.transform));
     }
 
 
@@ -521,7 +593,8 @@ public class WeaponController : MonoBehaviour
         yield return new WaitForSeconds(.001f);
 
 
-        StartCoroutine(CowsinsUtilities.PlayAnim("reloading", inventory[currentWeapon].GetComponentInChildren<Animator>()));
+        StartCoroutine(CowsinsUtilities.PlayAnim("reloading",
+            inventory[currentWeapon].GetComponentInChildren<Animator>()));
 
         yield return new WaitForSeconds(weapon.reloadTime);
 
@@ -549,7 +622,8 @@ public class WeaponController : MonoBehaviour
                 if (id.bulletsLeftInMagazine + id.totalBullets <= weapon.magazineSize)
                 {
                     id.bulletsLeftInMagazine = id.bulletsLeftInMagazine + id.totalBullets;
-                    if (id.totalBullets - (weapon.magazineSize - bulletsLeft) >= 0) id.totalBullets = id.totalBullets - (weapon.magazineSize - bulletsLeft);
+                    if (id.totalBullets - (weapon.magazineSize - bulletsLeft) >= 0)
+                        id.totalBullets = id.totalBullets - (weapon.magazineSize - bulletsLeft);
                     else id.totalBullets = 0;
                 }
                 else
@@ -576,13 +650,15 @@ public class WeaponController : MonoBehaviour
         id = weaponObj.GetComponent<WeaponIdentification>();
 
         weaponObj.GetComponentInChildren<Animator>().enabled = true;
-        StartCoroutine(CowsinsUtilities.PlayAnim("unholster", inventory[currentWeapon].GetComponentInChildren<Animator>()));
+        StartCoroutine(CowsinsUtilities.PlayAnim("unholster",
+            inventory[currentWeapon].GetComponentInChildren<Animator>()));
         SoundManager.Instance.PlaySound(weapon.audioSFX.unholster, .1f, 0, 0);
         Invoke("FinishedSelection", .5f);
 
         if (weapon.shootStyle == ShootStyle.Custom) SelectCustomShotMethod();
         else customMethod = null;
     }
+
     private void HandleUI()
     {
         //Inventory
@@ -599,6 +675,7 @@ public class WeaponController : MonoBehaviour
             lowAmmoUI.gameObject.SetActive(false);
             return;
         }
+
         if (weapon.infiniteBullets)
         {
             bulletsUI.gameObject.SetActive(false);
@@ -609,13 +686,13 @@ public class WeaponController : MonoBehaviour
             bulletsUI.gameObject.SetActive(true);
             magazineUI.gameObject.SetActive(true);
         }
+
         currentWeaponDisplay.gameObject.SetActive(true);
 
         currentWeaponDisplay.sprite = weapon.icon;
 
         if (!weapon.infiniteBullets)
         {
-
             // Set different display settings for each shoot style 
             if ((int)weapon.shootStyle != 2)
             {
@@ -637,13 +714,15 @@ public class WeaponController : MonoBehaviour
             }
 
 
-
-            if (id.bulletsLeftInMagazine == 0 && !autoReload && !weapon.infiniteBullets) reloadUI.gameObject.SetActive(true);
+            if (id.bulletsLeftInMagazine == 0 && !autoReload && !weapon.infiniteBullets)
+                reloadUI.gameObject.SetActive(true);
             else reloadUI.gameObject.SetActive(false);
 
-            if (id.bulletsLeftInMagazine < weapon.magazineSize / 3.5f && id.bulletsLeftInMagazine > 0) lowAmmoUI.gameObject.SetActive(true);
+            if (id.bulletsLeftInMagazine < weapon.magazineSize / 3.5f && id.bulletsLeftInMagazine > 0)
+                lowAmmoUI.gameObject.SetActive(true);
             else lowAmmoUI.gameObject.SetActive(false);
         }
+
         //Crosshair Management
         // If we dont use a crosshair stop right here
         if (crosshair == null)
@@ -651,12 +730,17 @@ public class WeaponController : MonoBehaviour
             crosshair.SpotEnemy(false);
             return;
         }
+
         // Detect enemies on aiming
         RaycastHit hit_;
-        if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit_, weapon.bulletRange) && hit_.transform.CompareTag("Enemy") || Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit_, weapon.bulletRange) && hit_.transform.CompareTag("Critical"))
+        if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit_,
+                weapon.bulletRange) && hit_.transform.CompareTag("Enemy") ||
+            Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit_,
+                weapon.bulletRange) && hit_.transform.CompareTag("Critical"))
             crosshair.SpotEnemy(true);
         else crosshair.SpotEnemy(false);
     }
+
     /// <summary>
     /// Procedurally generate the Inventory UI depending on your needs
     /// </summary>
@@ -668,7 +752,8 @@ public class WeaponController : MonoBehaviour
         while (j < inventorySize)
         {
             // Load the slot, instantiate it and set it to the slots array
-            var slot = Instantiate(Resources.Load("InventoryUISlot"), Vector3.zero, Quaternion.identity, inventoryContainer.transform) as GameObject;
+            var slot = Instantiate(Resources.Load("InventoryUISlot"), Vector3.zero, Quaternion.identity,
+                inventoryContainer.transform) as GameObject;
             slot.GetComponent<UISlot>().id = j;
             slots[j] = slot.GetComponent<UISlot>();
             j++;
@@ -688,16 +773,17 @@ public class WeaponController : MonoBehaviour
                 currentWeapon++;
                 SelectWeapon();
             }
+
         if (InputManager.scrolling < 0 || InputManager.nextweapon)
             if (currentWeapon > 0)
             {
                 currentWeapon--;
                 SelectWeapon();
             }
-
     }
 
     [HideInInspector] public bool selectingWeapon;
+
     public void SelectWeapon()
     {
         canShoot = false;
@@ -722,7 +808,8 @@ public class WeaponController : MonoBehaviour
 
 #if UNITY_EDITOR
                     crosshair.GetComponent<CrosshairShape>().currentPreset = weapon.crosshairPreset;
-                    CowsinsUtilities.ApplyPreset(crosshair.GetComponent<CrosshairShape>().currentPreset, crosshair.GetComponent<CrosshairShape>());
+                    CowsinsUtilities.ApplyPreset(crosshair.GetComponent<CrosshairShape>().currentPreset,
+                        crosshair.GetComponent<CrosshairShape>());
 #endif
                 }
             }
@@ -734,9 +821,9 @@ public class WeaponController : MonoBehaviour
             slot.transform.localScale = slot.initScale;
             slot.GetComponent<CanvasGroup>().alpha = .2f;
         }
+
         slots[currentWeapon].transform.localScale = slots[currentWeapon].transform.localScale * 1.2f;
         slots[currentWeapon].GetComponent<CanvasGroup>().alpha = 1;
-
     }
 
     private void GetInitialWeapons()
@@ -757,11 +844,13 @@ public class WeaponController : MonoBehaviour
                 UnHolster(weaponPicked.gameObject);
             }
             else weaponPicked.gameObject.SetActive(false);
+
             weapon = initialWeapons[i];
 
             inventory[i].GetComponent<WeaponIdentification>().bulletsLeftInMagazine = initialWeapons[i].magazineSize;
             if (initialWeapons[i].limitedMagazines)
-                inventory[i].GetComponent<WeaponIdentification>().totalBullets = initialWeapons[i].magazineSize * initialWeapons[i].totalMagazines;
+                inventory[i].GetComponent<WeaponIdentification>().totalBullets =
+                    initialWeapons[i].magazineSize * initialWeapons[i].totalMagazines;
             else inventory[i].GetComponent<WeaponIdentification>().totalBullets = initialWeapons[i].magazineSize;
 
             //UI
@@ -769,10 +858,12 @@ public class WeaponController : MonoBehaviour
             slots[i].GetImage();
 #if UNITY_EDITOR
             crosshair.GetComponent<CrosshairShape>().currentPreset = weapon.crosshairPreset;
-            CowsinsUtilities.ApplyPreset(crosshair.GetComponent<CrosshairShape>().currentPreset, crosshair.GetComponent<CrosshairShape>());
+            CowsinsUtilities.ApplyPreset(crosshair.GetComponent<CrosshairShape>().currentPreset,
+                crosshair.GetComponent<CrosshairShape>());
 #endif
             i++;
         }
+
         weapon = initialWeapons[0];
 
         if (weapon.shootStyle == ShootStyle.Custom) SelectCustomShotMethod();
@@ -785,11 +876,13 @@ public class WeaponController : MonoBehaviour
         weapon = null;
         slots[currentWeapon].weapon = null;
     }
+
     private float GetDistanceDamageReduction(Transform target)
     {
         if (!weapon.applyDamageReductionBasedOnDistance) return 1;
         if (Vector3.Distance(target.position, transform.position) > weapon.minimumDistanceToApplyDamageReduction)
-            return (weapon.minimumDistanceToApplyDamageReduction / Vector3.Distance(target.position, transform.position)) * weapon.damageReductionMultiplier;
+            return (weapon.minimumDistanceToApplyDamageReduction /
+                    Vector3.Distance(target.position, transform.position)) * weapon.damageReductionMultiplier;
         else return 1;
     }
 
@@ -799,11 +892,13 @@ public class WeaponController : MonoBehaviour
     }
 
     private float evaluationProgress, evaluationProgressX;
+
     private void HandleRecoil()
     {
         if (weapon != null && !weapon.applyRecoil)
         {
-            cameraPivot.localRotation = Quaternion.Lerp(cameraPivot.localRotation, Quaternion.Euler(Vector3.zero), 3 * Time.deltaTime);
+            cameraPivot.localRotation = Quaternion.Lerp(cameraPivot.localRotation, Quaternion.Euler(Vector3.zero),
+                3 * Time.deltaTime);
             return;
         }
 
@@ -811,7 +906,8 @@ public class WeaponController : MonoBehaviour
         float speed = (weapon == null) ? 10 : weapon.recoilRelaxSpeed * 3;
         if (!InputManager.shooting || reloading || !PlayerStats.Controllable)
         {
-            cameraPivot.localRotation = Quaternion.Lerp(cameraPivot.localRotation, Quaternion.Euler(Vector3.zero), speed * Time.deltaTime);
+            cameraPivot.localRotation = Quaternion.Lerp(cameraPivot.localRotation, Quaternion.Euler(Vector3.zero),
+                speed * Time.deltaTime);
             evaluationProgress = 0;
             evaluationProgressX = 0;
         }
@@ -820,10 +916,16 @@ public class WeaponController : MonoBehaviour
 
         if (InputManager.shooting)
         {
-            float xamount = (weapon.applyDifferentRecoilOnAiming && isAiming) ? weapon.xRecoilAmountOnAiming : weapon.xRecoilAmount;
-            float yamount = (weapon.applyDifferentRecoilOnAiming && isAiming) ? weapon.yRecoilAmountOnAiming : weapon.yRecoilAmount;
+            float xamount = (weapon.applyDifferentRecoilOnAiming && isAiming)
+                ? weapon.xRecoilAmountOnAiming
+                : weapon.xRecoilAmount;
+            float yamount = (weapon.applyDifferentRecoilOnAiming && isAiming)
+                ? weapon.yRecoilAmountOnAiming
+                : weapon.yRecoilAmount;
 
-            cameraPivot.localRotation = Quaternion.Lerp(cameraPivot.localRotation, Quaternion.Euler(new Vector3(-weapon.recoilY.Evaluate(evaluationProgress) * yamount, -weapon.recoilX.Evaluate(evaluationProgressX) * xamount, 0)), 10 * Time.deltaTime);
+            cameraPivot.localRotation = Quaternion.Lerp(cameraPivot.localRotation,
+                Quaternion.Euler(new Vector3(-weapon.recoilY.Evaluate(evaluationProgress) * yamount,
+                    -weapon.recoilX.Evaluate(evaluationProgressX) * xamount, 0)), 10 * Time.deltaTime);
         }
     }
 
@@ -836,7 +938,3 @@ public class WeaponController : MonoBehaviour
         }
     }
 }
-
-
-
-
