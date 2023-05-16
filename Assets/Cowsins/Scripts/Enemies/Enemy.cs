@@ -1,5 +1,5 @@
 /// <summary>
-/// This script belongs to cowsins™ as a part of the cowsins´ FPS Engine. All rights reserved. 
+/// This script belongs to cowsinsï¿½ as a part of the cowsinsï¿½ FPS Engine. All rights reserved. 
 /// </summary>
 #if UNITY_EDITOR
 using UnityEditor;
@@ -52,9 +52,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
     public Events events;
 
-
-    // Start is called before the first frame update"
-    public virtual void Start()
+    protected virtual void Start()
     {
         // Status initial settings
         health = maxHealth;
@@ -80,7 +78,6 @@ public class Enemy : MonoBehaviour, IDamageable
         UI = player.GetComponent<PlayerMovement>().UI;
     }
 
-    // Update is called once per frame
     public virtual void Update()
     {
         //Handle UI 
@@ -90,6 +87,7 @@ public class Enemy : MonoBehaviour, IDamageable
         // Manage health
         if (health <= 0) Die();
     }
+    
     /// <summary>
     /// Since it is IDamageable, it can take damage, if a shot is landed, damage the enemy
     /// </summary>
@@ -123,6 +121,7 @@ public class Enemy : MonoBehaviour, IDamageable
             float xRand = Random.Range(-xVariation, xVariation);
             popup.transform.position = popup.transform.position + new Vector3(xRand, 0, 0);
     }
+
     public virtual void Die()
     {
         // Custom event on damaged
