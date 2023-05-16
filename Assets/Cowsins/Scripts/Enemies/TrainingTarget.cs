@@ -15,7 +15,7 @@ namespace Cowsins.Enemies
             base.Start();
         
             _uiController = UI.GetComponent<UIController>();
-            _compassElement = transform.parent.GetComponent<CompassElement>();
+            _compassElement = GetComponent<CompassElement>();
         }
 
         public override void Damage(float damage)
@@ -34,20 +34,23 @@ namespace Cowsins.Enemies
             _isDead = true;
 
             events.OnDeath.Invoke();
-
-            Invoke(nameof(Revive), timeToRevive);
-
+            
             if (shieldSlider != null)
                 shieldSlider.gameObject.SetActive(false);
-        
+            
             if (healthSlider != null)
                 healthSlider.gameObject.SetActive(false);
-
+            
             if (_uiController.displayEvents)
                 _uiController.AddKillfeed(name);
-
+            
             if (_compassElement != null)
                 _compassElement.Remove();
+            
+            Destroy(transform.parent.gameObject);
+
+            // Invoke(nameof(Revive), timeToRevive);
+            //
         }
 
         private void Revive()
