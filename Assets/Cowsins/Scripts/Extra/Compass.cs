@@ -2,20 +2,23 @@ using UnityEngine;
 using System.Collections.Generic; 
 using UnityEngine.UI;
 using TMPro; 
+
 public class Compass : MonoBehaviour
 {
     [SerializeField] private RawImage compass;
     [SerializeField] private Transform player;
     [SerializeField] private TextMeshProUGUI compassText;
-
     [SerializeField] private GameObject compassElementIcon;
 
     private List<CompassElement> compassElements = new List<CompassElement>();
     public static Compass Instance { get; private set; }
+    
     private void Awake()
     {
-        if (Instance != null && Instance != this)Destroy(this);
-        else Instance = this;
+        if (Instance != null && Instance != this)
+            Destroy(this);
+        else 
+            Instance = this;
     }
 
     private void Update()
