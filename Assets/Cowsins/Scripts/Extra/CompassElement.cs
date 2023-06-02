@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +23,12 @@ public class CompassElement : MonoBehaviour
     {
         if (addOnStart) 
             Add();
+    }
+
+    private void OnDestroy()
+    {
+        if (addOnStart)
+            Remove();
     }
 
     public void Add() => 

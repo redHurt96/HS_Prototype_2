@@ -16,9 +16,14 @@ namespace _Project.Logic.Enemies
             _stateMachine = new StateMachine()
                 .AddStates(
                     new Patrol(Context),
+                    new Stand(Context),
                     new Chase(Context),
                     new Attack(Context))
                 .AddTransitions(
+                    new Transition(typeof(Patrol), typeof(Stand), Context.ReachTarget),
+                    new Transition(typeof(Stand), typeof(Chase), Context.HasTarget),
+                    new Transition(typeof(Stand), typeof(Attack), Context.CanAttack),
+                    new Transition(typeof(Stand), typeof(Patrol), Context.WaitEnough),
                     new Transition(typeof(Patrol), typeof(Chase), Context.HasTarget),
                     new Transition(typeof(Patrol), typeof(Attack), Context.CanAttack),
                     new Transition(typeof(Chase), typeof(Patrol), Context.HasNoTarget),

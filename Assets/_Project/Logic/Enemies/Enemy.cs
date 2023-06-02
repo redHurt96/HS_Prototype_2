@@ -17,7 +17,9 @@ namespace _Project.Logic.Enemies
         [SerializeField] private float _attackRange = 2f;
         [SerializeField] private float _attackCooldown = 1f;
         [SerializeField] private float _attackDamage = 10f;
-        
+        [SerializeField] private float _stoppingDistance = 1f;
+        [SerializeField] private float _standTime = 3f;
+
         [Space]
         [SerializeField] private Transform _transform;
         [SerializeField] private NavMeshAgent _navMeshAgent;
@@ -25,6 +27,7 @@ namespace _Project.Logic.Enemies
         private PlayerStats _target;
         private float _lastChaseTime;
         private float _lastAttackTime;
+        private float _lastStandTime;
 
         public float ChaseDistance => _chaseDistance;
 
@@ -53,7 +56,7 @@ namespace _Project.Logic.Enemies
         }
 
         public bool ReachTarget() => 
-            _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance;
+            _navMeshAgent.remainingDistance <= _stoppingDistance;
 
         public void Stop() => 
             _navMeshAgent.isStopped = true;
@@ -72,6 +75,15 @@ namespace _Project.Logic.Enemies
         {
             _target.Damage(_attackDamage);
             _lastAttackTime = time;
+        }
+
+        public bool WaitEnough() => 
+            _lastStandTime + _standTime < time;
+
+        public void StopAtPatrolPoint()
+        {
+            Stop();
+            _lastStandTime = time;
         }
     }
 }

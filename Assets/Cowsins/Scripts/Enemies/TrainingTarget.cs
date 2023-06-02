@@ -7,7 +7,6 @@ namespace Cowsins.Enemies
         [SerializeField] private float timeToRevive;
     
         private UIController _uiController;
-        private CompassElement _compassElement;
         private bool _isDead;
         
         protected override void Start()
@@ -15,7 +14,6 @@ namespace Cowsins.Enemies
             base.Start();
         
             _uiController = UI.GetComponent<UIController>();
-            _compassElement = GetComponent<CompassElement>();
         }
 
         public override void Damage(float damage)
@@ -43,9 +41,6 @@ namespace Cowsins.Enemies
             
             if (_uiController.displayEvents)
                 _uiController.AddKillfeed(name);
-            
-            if (_compassElement != null)
-                _compassElement.Remove();
             
             Destroy(transform.parent.gameObject);
 
