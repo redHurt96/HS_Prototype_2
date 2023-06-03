@@ -19,7 +19,7 @@ namespace _Project.Logic.Utilities
             foreach (Collider collider in colliders)
             {
                 if (collider.TryGetComponent(out EnemyBehaviorInstaller behaviorInstaller))
-                    behaviorInstaller.Context.HearTarget();
+                    behaviorInstaller.Model.HearTarget();
             }
         }
     }

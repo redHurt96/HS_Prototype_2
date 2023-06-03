@@ -12,7 +12,7 @@ namespace _Project.Logic.Enemies
         
         private PlayerStats _playerStats;
 
-        private Enemy Context => _enemyBehaviorInstaller.Context;
+        private Enemy Context => _enemyBehaviorInstaller.Model;
 
         private void Start() => 
             _playerStats = FindObjectOfType<PlayerStats>();

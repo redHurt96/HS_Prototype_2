@@ -9,7 +9,7 @@ namespace _Project.Logic.Enemies
         [SerializeField] private Image _parent;
         [SerializeField] private Image _fill;
 
-        private Enemy Context => _enemy.Context;
+        private Enemy Context => _enemy.Model;
 
         private void Update()
         {

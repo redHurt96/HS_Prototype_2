@@ -7,39 +7,39 @@ namespace _Project.Logic.Enemies
 {
     public class EnemyBehaviorInstaller : MonoBehaviour
     {
-        public Enemy Context => _context;
+        public Enemy Model => _model;
 
-        [SerializeField] private Enemy _context;
+        [SerializeField] private Enemy _model;
         
         private StateMachine _stateMachine;
 
         private void Start()
         {
-            _context.InstallTarget(FindObjectOfType<PlayerStats>());
+            _model.InstallTarget(FindObjectOfType<PlayerStats>());
             
             _stateMachine = new StateMachine()
                 .AddStates(
-                    new Patrol(Context),
-                    new Stand(Context),
-                    new RotateToTarget(Context),
-                    new Chase(Context),
-                    new Attack(Context))
+                    new Patrol(Model),
+                    new Stand(Model),
+                    new RotateToTarget(Model),
+                    new Chase(Model),
+                    new Attack(Model))
                 .AddTransitions(
-                    new Transition(typeof(Patrol), typeof(RotateToTarget), Context.PayAttentionToTarget),
-                    new Transition(typeof(Patrol), typeof(Stand), Context.ReachPatrolPoint),
-                    new Transition(typeof(Patrol), typeof(Chase), Context.HasTarget),
-                    new Transition(typeof(Patrol), typeof(Attack), Context.CanAttack),
-                    new Transition(typeof(Stand), typeof(Patrol), Context.WaitEnough),
-                    new Transition(typeof(Stand), typeof(RotateToTarget), Context.PayAttentionToTarget),
-                    new Transition(typeof(Stand), typeof(Chase), Context.HasTarget),
-                    new Transition(typeof(Stand), typeof(Attack), Context.CanAttack),
-                    new Transition(typeof(Chase), typeof(RotateToTarget), Context.HasNoTarget),
-                    new Transition(typeof(Chase), typeof(Attack), Context.CanAttack),
-                    new Transition(typeof(Attack), typeof(Chase), Context.FarFromTarget),
-                    new Transition(typeof(Attack), typeof(RotateToTarget), Context.HasNoTarget),
-                    new Transition(typeof(RotateToTarget), typeof(Patrol), Context.LostTarget),
-                    new Transition(typeof(RotateToTarget), typeof(Chase), Context.HasTarget),
-                    new Transition(typeof(RotateToTarget), typeof(Attack), Context.CanAttack))
+                    new Transition(typeof(Patrol), typeof(RotateToTarget), Model.PayAttentionToTarget),
+                    new Transition(typeof(Patrol), typeof(Stand), Model.ReachPatrolPoint),
+                    new Transition(typeof(Patrol), typeof(Chase), Model.HasTarget),
+                    new Transition(typeof(Patrol), typeof(Attack), Model.CanAttack),
+                    new Transition(typeof(Stand), typeof(Patrol), Model.WaitEnough),
+                    new Transition(typeof(Stand), typeof(RotateToTarget), Model.PayAttentionToTarget),
+                    new Transition(typeof(Stand), typeof(Chase), Model.HasTarget),
+                    new Transition(typeof(Stand), typeof(Attack), Model.CanAttack),
+                    new Transition(typeof(Chase), typeof(RotateToTarget), Model.HasNoTarget),
+                    new Transition(typeof(Chase), typeof(Attack), Model.CanAttack),
+                    new Transition(typeof(Attack), typeof(Chase), Model.FarFromTarget),
+                    new Transition(typeof(Attack), typeof(RotateToTarget), Model.HasNoTarget),
+                    new Transition(typeof(RotateToTarget), typeof(Patrol), Model.LostTarget),
+                    new Transition(typeof(RotateToTarget), typeof(Chase), Model.HasTarget),
+                    new Transition(typeof(RotateToTarget), typeof(Attack), Model.CanAttack))
                 .Run();
         }
 
