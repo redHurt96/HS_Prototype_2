@@ -1,6 +1,8 @@
 /// <summary>
-/// This script belongs to cowsins™ as a part of the cowsins´ FPS Engine. All rights reserved. 
+/// This script belongs to cowsinsï¿½ as a part of the cowsinsï¿½ FPS Engine. All rights reserved. 
 /// </summary>
+
+using Cowsins.Player;
 using UnityEngine;
 
 public class Healthpack : PowerUp

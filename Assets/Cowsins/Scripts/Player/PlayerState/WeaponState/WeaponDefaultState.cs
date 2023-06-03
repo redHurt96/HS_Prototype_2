@@ -1,4 +1,6 @@
-using cowsins; using UnityEngine; 
+using cowsins;
+using Cowsins.Player;
+using UnityEngine; 
 public class WeaponDefaultState : WeaponBaseState
 {
     private WeaponController controller;

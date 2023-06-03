@@ -1,4 +1,6 @@
-using cowsins; 
+using cowsins;
+using Cowsins.Player;
+
 public class WeaponReloadState : WeaponBaseState
 {
 

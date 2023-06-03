@@ -1120,6 +1120,7 @@ GameObject:
   - component: {fileID: 4093504697941778557}
   - component: {fileID: 4093504697941778556}
   - component: {fileID: 9214337554021894770}
+  - component: {fileID: 7069723858267999630}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1243,7 +1244,6 @@ MonoBehaviour:
   currentDashes: 0
   dashDuration: 0
   canShootWhileDashing: 0
-  isCrouching: 0
   footsteps:
     defaultStep:
     - {fileID: 8300000, guid: 3b2fd8aa823253841a84bf5e637506fa, type: 3}
@@ -1655,6 +1655,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &7069723858267999630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4093504697941778558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a7374fd1eb461998d3bb76cae47aa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stats: {fileID: 4093504697941778534}
 --- !u!1 &4093504697945921075
 GameObject:
   m_ObjectHideFlags: 0

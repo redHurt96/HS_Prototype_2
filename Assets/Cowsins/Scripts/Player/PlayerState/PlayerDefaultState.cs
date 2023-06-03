@@ -1,5 +1,7 @@
 using UnityEngine;
-using cowsins; 
+using cowsins;
+using Cowsins.Player;
+
 public class PlayerDefaultState : PlayerBaseState
 {
     public PlayerDefaultState(PlayerStates currentContext, PlayerStateFactory playerStateFactory)
@@ -62,7 +64,7 @@ public class PlayerDefaultState : PlayerBaseState
     {
 
         RaycastHit hitt;
-        if (!InputManager.crouching) // Prevent from uncrouching when there´s a roof and we can get hit with it
+        if (!InputManager.crouching) // Prevent from uncrouching when thereï¿½s a roof and we can get hit with it
         {
             if (Physics.Raycast(_ctx.transform.position, _ctx.transform.up, out hitt, 5.5f, _ctx.GetComponent<PlayerMovement>().weapon.hitLayer))
             {

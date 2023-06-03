@@ -1,8 +1,3 @@
-/// <summary>
-/// This script belongs to cowsins™ as a part of the cowsins´ FPS Engine. All rights reserved. 
-/// </summary>
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,10 +5,11 @@ using UnityEngine;
 /// </summary>
 public class CrouchTilt : MonoBehaviour
 {
+    [Tooltip("Rotation desired when crouching"), SerializeField]
+    private Vector3 tiltRot, tiltPosOffset;
 
-    [Tooltip("Rotation desired when crouching"),SerializeField]private Vector3 tiltRot, tiltPosOffset;
-
-    [Tooltip("Tilting / Rotation velocity"), SerializeField] private float tiltSpeed;
+    [Tooltip("Tilting / Rotation velocity"), SerializeField]
+    private float tiltSpeed;
 
     [HideInInspector] public PlayerMovement player;
 
@@ -23,24 +19,26 @@ public class CrouchTilt : MonoBehaviour
 
     private Quaternion origRot;
 
-    private Vector3 origPos; 
+    private Vector3 origPos;
 
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<PlayerMovement>();
         wp = GameObject.Find("Player").GetComponent<WeaponController>();
         origRot = transform.localRotation;
-        origPos = transform.localPosition; 
+        origPos = transform.localPosition;
     }
 
     void Update()
     {
         // If we are crouching + not aiming Tilt
-        if (player.isCrouching && !wp.isAiming)
+        if (player.IsCrouching && !wp.isAiming)
         {
             crouching = true;
-           transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.Euler(tiltRot), Time.deltaTime * tiltSpeed);
-            transform.localPosition = Vector3.Lerp(transform.localPosition, origPos+ tiltPosOffset, Time.deltaTime * tiltSpeed);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.Euler(tiltRot),
+                Time.deltaTime * tiltSpeed);
+            transform.localPosition =
+                Vector3.Lerp(transform.localPosition, origPos + tiltPosOffset, Time.deltaTime * tiltSpeed);
         }
         else // If not, come back
         {
@@ -48,8 +46,9 @@ public class CrouchTilt : MonoBehaviour
             transform.localRotation = Quaternion.Lerp(transform.localRotation, origRot, Time.deltaTime * tiltSpeed);
             transform.localPosition = Vector3.Lerp(transform.localPosition, origPos, Time.deltaTime * tiltSpeed);
         }
-        if(crouching && wp.isAiming) 
-       {
+
+        if (crouching && wp.isAiming)
+        {
             transform.localRotation = Quaternion.Lerp(transform.localRotation, origRot, Time.deltaTime * tiltSpeed);
             transform.localPosition = Vector3.Lerp(transform.localPosition, origPos, Time.deltaTime * tiltSpeed);
         }

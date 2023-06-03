@@ -7,6 +7,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Events;
 using cowsins;
+using Cowsins.Player;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor.Presets;
