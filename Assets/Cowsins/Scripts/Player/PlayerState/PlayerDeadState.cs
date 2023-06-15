@@ -1,3 +1,4 @@
+using Cowsins.Player;
 using UnityEngine;
 
 public class PlayerDeadState : PlayerBaseState

@@ -1,5 +1,6 @@
 using UnityEngine;
 using cowsins;
+using Cowsins.Player;
 
 public class CameraTilt : MonoBehaviour
 {

@@ -10,7 +10,7 @@ public class Compass : MonoBehaviour
     [SerializeField] private TextMeshProUGUI compassText;
     [SerializeField] private GameObject compassElementIcon;
 
-    private List<CompassElement> compassElements = new List<CompassElement>();
+    private List<CompassElement> compassElements = new();
     public static Compass Instance { get; private set; }
     
     private void Awake()

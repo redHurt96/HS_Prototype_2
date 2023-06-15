@@ -1,51 +1,70 @@
-/// <summary>
-/// This script belongs to cowsins™ 2022 as a part of the cowsins´ FPS Engine. All rights reserved. 
-/// PlayerMovement is based on Dani´s rigidbody player controller.
-/// </summary>
-
 using System;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using cowsins;
+using Cowsins.Player;
 
 // Add a rigidbody if needed, PlayerMovement.cs requires a rigidbody to work 
 [RequireComponent(typeof(Rigidbody))]
 //[RequireComponent(typeof(____))] Player Movement also requires a non trigger collider. Attach your preffered collider method
 public class PlayerMovement : MonoBehaviour
 {
-
     #region others
 
     [System.Serializable]
     public class Events // Store your events
     {
-        public UnityEvent OnMove, OnJump, OnLand, OnCrouch, OnStopCrouch, OnSprint, OnSpawn, OnSlide, OnStartWallRun, OnStopWallRun, OnWallBounce, OnStartDash, OnDashing, OnEndDash;
+        public UnityEvent OnMove,
+            OnJump,
+            OnLand,
+            OnCrouch,
+            OnStopCrouch,
+            OnSprint,
+            OnSpawn,
+            OnSlide,
+            OnStartWallRun,
+            OnStopWallRun,
+            OnWallBounce,
+            OnStartDash,
+            OnDashing,
+            OnEndDash;
     }
+
     [System.Serializable]
     public class FootStepsAudio // store your footsteps audio
     {
         public AudioClip[] defaultStep, grassStep, metalStep, mudStep, woodStep;
     }
+
     [System.Serializable]
     public enum CancelWallRunMethod // Different methods to dettermine when wallrun should stop
     {
-        None, Timer
+        None,
+        Timer
     }
+
     [System.Serializable]
     public enum DirectionalJumpMethod // Different methods to dettermine the jump method to apply
     {
-        None, InputBased, ForwardMovement
+        None,
+        InputBased,
+        ForwardMovement
     }
+
     [System.Serializable]
     public enum DashMethod // Different methods to dettermine the jump method to apply
     {
-        ForwardAlways, InputBased, Free
+        ForwardAlways,
+        InputBased,
+        Free
     }
+
     #endregion
 
     #region variables
+
     //Assignables
     [Tooltip("Find your camera parent, this is where it should be attached.")]
     public Transform playerCam;
@@ -53,12 +72,14 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Object with the same height as your camera, used to orientate the player.")]
     public Transform orientation;
 
-    [Tooltip("Our UI Canvas.")]
-    public Transform UI;
+    [Tooltip("Our UI Canvas.")] public Transform UI;
 
-    [SerializeField, Tooltip("Contains dashUIElements in game.")] private Transform dashUIContainer;
+    [SerializeField, Tooltip("Contains dashUIElements in game.")]
+    private Transform dashUIContainer;
 
-    [SerializeField, Tooltip("Displays a dash slot in-game. This keeps stored at dashUIContainer during runtime.")] private Transform dashUIElement;
+    [SerializeField, Tooltip("Displays a dash slot in-game. This keeps stored at dashUIContainer during runtime.")]
+    private Transform dashUIElement;
+
     private PlayerStats stats;
 
     // References
@@ -75,11 +96,11 @@ public class PlayerMovement : MonoBehaviour
 
     //Movements
     [Tooltip("If true: Speed while running backwards = runSpeed." +
-    "       if false: Speed while running backwards = walkSpeed")]
+             "       if false: Speed while running backwards = walkSpeed")]
     public bool canRunBackwards;
 
     [Tooltip("If true: Speed while shooting = runSpeed." +
-   "       if false: Speed while shooting = walkSpeed")]
+             "       if false: Speed while shooting = walkSpeed")]
     public bool canRunWhileShooting;
 
     public bool canJumpWhileCrouching;
@@ -90,36 +111,40 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Capacity to gain speed."), SerializeField]
     private float acceleration = 4500;
 
-    [Tooltip("Maximum allowed speed.")]
-    public float currentSpeed = 20;
+    [Tooltip("Maximum allowed speed.")] public float currentSpeed = 20;
 
-    [Min(0.01f)]
-    public float runSpeed, walkSpeed, crouchSpeed, crouchTransitionSpeed;
+    [Min(0.01f)] public float runSpeed, walkSpeed, crouchSpeed, crouchTransitionSpeed;
 
-    [Tooltip("Displays speed lines effects at certain speed")] public bool useSpeedLines;
+    [Tooltip("Displays speed lines effects at certain speed")]
+    public bool useSpeedLines;
 
-    [SerializeField, Tooltip("Speed lines particle system.")] private ParticleSystem speedLines;
+    [SerializeField, Tooltip("Speed lines particle system.")]
+    private ParticleSystem speedLines;
 
-    [SerializeField, Min(0), Tooltip("Speed Lines will only be shown above this speed.")] private float minSpeedToUseSpeedLines;
+    [SerializeField, Min(0), Tooltip("Speed Lines will only be shown above this speed.")]
+    private float minSpeedToUseSpeedLines;
 
-    [SerializeField, Range(.1f, 2), Tooltip("Being 1 = default, amount of speed lines displayed.")] private float speedLinesAmount = 1;
+    [SerializeField, Range(.1f, 2), Tooltip("Being 1 = default, amount of speed lines displayed.")]
+    private float speedLinesAmount = 1;
 
-    [Tooltip("Enable this to instantly run without needing to press the sprint button down.")] public bool autoRun;
+    [Tooltip("Enable this to instantly run without needing to press the sprint button down.")]
+    public bool autoRun;
 
-    [Tooltip("If false, hold to sprint, and release to stop sprinting.")] public bool alternateSprint;
+    [Tooltip("If false, hold to sprint, and release to stop sprinting.")]
+    public bool alternateSprint;
 
-    [Tooltip("If false, hold to crouch, and release to uncrouch.")] public bool alternateCrouch;
+    [Tooltip("If false, hold to crouch, and release to uncrouch.")]
+    public bool alternateCrouch;
 
-    [Min(0.01f)]
-    [Tooltip("Max speed the player can reach. Velocity is clamped by this value.")] public float maxSpeedAllowed = 40;
+    [Min(0.01f)] [Tooltip("Max speed the player can reach. Velocity is clamped by this value.")]
+    public float maxSpeedAllowed = 40;
 
     [HideInInspector] public bool grounded { get; private set; }
 
     [Tooltip("Every object with this layer will be detected as ground, so you will be able to walk on it")]
     public LayerMask whatIsGround;
 
-    [Range(0, .5f)]
-    [Tooltip("Counter movement."), SerializeField]
+    [Range(0, .5f)] [Tooltip("Counter movement."), SerializeField]
     private float frictionForceAmount = 0.175f;
 
     private float threshold = 0.01f;
@@ -132,7 +157,11 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 crouchScale { get; private set; } = new Vector3(1, 0.5f, 1);
 
     private Vector3 playerScale;
-    public Vector3 PlayerScale { get { return playerScale; } }
+
+    public Vector3 PlayerScale
+    {
+        get { return playerScale; }
+    }
 
     [Tooltip("When true, player will be allowed to slide.")]
     public bool allowSliding;
@@ -149,23 +178,38 @@ public class PlayerMovement : MonoBehaviour
     //Jumping
     private bool canJump = true;
 
-    public bool CanJump { get { return canJump; } set { canJump = value; } }
+    public bool CanJump
+    {
+        get { return canJump; }
+        set { canJump = value; }
+    }
 
     private bool readyToJump = true;
 
-    public bool ReadyToJump { get { return readyToJump; } }
+    public bool ReadyToJump
+    {
+        get { return readyToJump; }
+    }
 
-    [Tooltip("Amount of jumps you can do without touching the ground")] [Min(1)] public int maxJumps;
+    [Tooltip("Amount of jumps you can do without touching the ground")] [Min(1)]
+    public int maxJumps;
 
-    [Tooltip("Gains jump amounts when wallrunning.")] public bool resetJumpsOnWallrun;
+    [Tooltip("Gains jump amounts when wallrunning.")]
+    public bool resetJumpsOnWallrun;
 
-    [Tooltip("Gains jump amounts when wallrunning.")] public bool resetJumpsOnWallBounce;
+    [Tooltip("Gains jump amounts when wallrunning.")]
+    public bool resetJumpsOnWallBounce;
 
-    [Tooltip("Double jump will reset fall damage, only if your player controller is optable to take fall damage")] public bool doubleJumpResetsFallDamage;
+    [Tooltip("Double jump will reset fall damage, only if your player controller is optable to take fall damage")]
+    public bool doubleJumpResetsFallDamage;
 
-    [Tooltip("Interval between jumping")] [Min(.25f), SerializeField] private float jumpCooldown = .25f;
+    [Tooltip("Interval between jumping")] [Min(.25f), SerializeField]
+    private float jumpCooldown = .25f;
 
-    [Range(0, .3f), Tooltip("Coyote jump allows users to perform more satisfactory and responsive jumps, especially when jumping off surfaces")] public float coyoteJumpTime;
+    [Range(0, .3f),
+     Tooltip(
+         "Coyote jump allows users to perform more satisfactory and responsive jumps, especially when jumping off surfaces")]
+    public float coyoteJumpTime;
 
     [Tooltip("The higher this value is, the higher you will get to jump."), SerializeField]
     private float jumpForce = 550f;
@@ -182,12 +226,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Turn this on to allow the player to crouch while jumping")]
     public bool allowCrouchWhileJumping;
+
     //Aim assist
     [Tooltip("Determine wether to apply aim assist or not.")]
     public bool applyAimAssist;
 
-    [Min(.1f), SerializeField]
-    private float maximumDistanceToAssistAim;
+    [Min(.1f), SerializeField] private float maximumDistanceToAssistAim;
 
     [Tooltip("Snapping speed."), SerializeField]
     private float aimAssistSpeed;
@@ -228,50 +272,71 @@ public class PlayerMovement : MonoBehaviour
     private Slider staminaSlider;
 
     // Wallrun 
-    [Tooltip("When enabled, it will allow the player to wallrun on walls")] public bool canWallRun;
+    [Tooltip("When enabled, it will allow the player to wallrun on walls")]
+    public bool canWallRun;
 
-    [Tooltip("When enabled, gravity will be applied on the player while wallrunning. If disabled, the player won´t lose height while wallrunning.")] public bool useGravity;
+    [Tooltip(
+        "When enabled, gravity will be applied on the player while wallrunning. If disabled, the player won´t lose height while wallrunning.")]
+    public bool useGravity;
 
-    [Tooltip("Method to determine length of wallRun.")] public CancelWallRunMethod cancelWallRunMethod;
+    [Tooltip("Method to determine length of wallRun.")]
+    public CancelWallRunMethod cancelWallRunMethod;
 
-    [SerializeField, Min(.1f), Tooltip("Duration of wall run for cancelWallRunMethod = TIMER.")] private float wallRunDuration;
+    [SerializeField, Min(.1f), Tooltip("Duration of wall run for cancelWallRunMethod = TIMER.")]
+    private float wallRunDuration;
 
-    [SerializeField, Range(0, 30), Tooltip("Rotation of the camera when wall running. The rotation direction gets automatically adjusted by FPS Engine.")]
+    [SerializeField, Range(0, 30),
+     Tooltip(
+         "Rotation of the camera when wall running. The rotation direction gets automatically adjusted by FPS Engine.")]
     private float wallrunCameraTiltAmount;
 
-    [SerializeField, Tooltip("Speed of the tilt camera movement. This is essentially used for wall running")] private float cameraTiltTransationSpeed;
+    [SerializeField, Tooltip("Speed of the tilt camera movement. This is essentially used for wall running")]
+    private float cameraTiltTransationSpeed;
 
-    [SerializeField, Min(0), Tooltip("Since we do not want to apply all the gravity force directly to the player, we shall define the force that will counter gravity. This force goes in the opposite direction from gravity.")]
+    [SerializeField, Min(0),
+     Tooltip(
+         "Since we do not want to apply all the gravity force directly to the player, we shall define the force that will counter gravity. This force goes in the opposite direction from gravity.")]
     private float wallrunGravityCounterForce;
 
-    [SerializeField, Min(0), Tooltip("Minimum height above ground (in units) required to being able to start wall run. Wall run motion will be cancelled for heights below this.")]
+    [SerializeField, Min(0),
+     Tooltip(
+         "Minimum height above ground (in units) required to being able to start wall run. Wall run motion will be cancelled for heights below this.")]
     private float wallMinimumHeight;
 
-    [SerializeField, Min(0), Tooltip("Maximum speed reachable while wall running.")] private float maxWallRunSpeed;
+    [SerializeField, Min(0), Tooltip("Maximum speed reachable while wall running.")]
+    private float maxWallRunSpeed;
 
-    [SerializeField, Min(0), Tooltip("Impulse applied on the player when wall run is cancelled. This results in a more satisfactory movement. Note that this force goes in the direction of the normal of the wall the player is wall running.")]
+    [SerializeField, Min(0),
+     Tooltip(
+         "Impulse applied on the player when wall run is cancelled. This results in a more satisfactory movement. Note that this force goes in the direction of the normal of the wall the player is wall running.")]
     private float stopWallRunningImpulse;
 
     [SerializeField, Min(0), Tooltip("When wall jumping, force applied on the Y axis.")]
     private float upwardsWallJumpForce;
 
-    [SerializeField, Min(0), Tooltip("When wall jumping, force applied on the X axis, relative to the normal of the wall.")]
+    [SerializeField, Min(0),
+     Tooltip("When wall jumping, force applied on the X axis, relative to the normal of the wall.")]
     private float normalWallJumpForce;
 
-    [SerializeField, Tooltip("Define wallrunnable wall layers. By default, this is set to the same as whatIsGround.")] private LayerMask whatIsWallRunWall;
+    [SerializeField, Tooltip("Define wallrunnable wall layers. By default, this is set to the same as whatIsGround.")]
+    private LayerMask whatIsWallRunWall;
 
     [HideInInspector] public bool wallRunning { get; private set; } = false;
 
     // Wall Bounce
-    [Tooltip("When enabled, it will allow the player to wall bounce on walls.")] public bool canWallBounce;
+    [Tooltip("When enabled, it will allow the player to wall bounce on walls.")]
+    public bool canWallBounce;
 
-    [SerializeField, Tooltip("Force applied to the player on wall bouncing. Note that this force is applied on the direction of the reflection of both the player movement and the wall normal.")]
+    [SerializeField,
+     Tooltip(
+         "Force applied to the player on wall bouncing. Note that this force is applied on the direction of the reflection of both the player movement and the wall normal.")]
     private float wallBounceForce;
 
     [SerializeField, Tooltip("Force applied on the player on wall bouncing ( Y axis – Vertical Force ).")]
     private float wallBounceUpwardsForce;
 
-    [SerializeField, Range(0.1f, 2), Tooltip("maximum Distance to detect a wall you can bounce on. This will use the same layer as wall run walls.")]
+    [SerializeField, Range(0.1f, 2),
+     Tooltip("maximum Distance to detect a wall you can bounce on. This will use the same layer as wall run walls.")]
     private float oppositeWallDetectionDistance = 1;
 
     // Dash
@@ -284,14 +349,19 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("When enabled, player will not receive damage.")]
     public bool damageProtectionWhileDashing;
 
-    [Tooltip("When enabled, it will allow the player to perform dashes.")] public bool dashing;
+    [Tooltip("When enabled, it will allow the player to perform dashes.")]
+    public bool dashing;
 
-    [Tooltip("force applied when dashing. Note that this is a constant force, not an impulse, so it is being applied while the dash lasts.")]
+    [Tooltip(
+        "force applied when dashing. Note that this is a constant force, not an impulse, so it is being applied while the dash lasts.")]
     public float dashForce;
 
-    [Tooltip("When enabled, it will allow the player to perform dashes.")] public bool infiniteDashes;
+    [Tooltip("When enabled, it will allow the player to perform dashes.")]
+    public bool infiniteDashes;
 
-    [Min(1), Tooltip("maximum ( initial ) amount of dashes. Dashes will be regenerated up to “amountOfDashes”, you won´t be able to gain more dashes than this value, check dash Cooldown.")]
+    [Min(1),
+     Tooltip(
+         "maximum ( initial ) amount of dashes. Dashes will be regenerated up to “amountOfDashes”, you won´t be able to gain more dashes than this value, check dash Cooldown.")]
     public int amountOfDashes = 3;
 
     [SerializeField, Min(.1f), Tooltip("Time to regenerate a dash on performing a dash motion.")]
@@ -305,51 +375,61 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("When enabled, it will allow the player to shoot while dashing.")]
     public bool canShootWhileDashing;
 
-    //Others
-    [HideInInspector] public bool isCrouching;
+    public bool IsCrouching => _isCrouching;
+    private bool _isCrouching;
 
     [SerializeField] private FootStepsAudio footsteps;
 
 
     // Audio
-    [Header("Audio")]
-    private AudioSource _audio;
+    [Header("Audio")] private AudioSource _audio;
 
     [Tooltip("Volume of the AudioSource."), SerializeField]
     private float footstepVolume;
 
-    [Tooltip("Play speed of the footsteps."), SerializeField, Range(.1f, .95f)] private float footstepSpeed;
+    [Tooltip("Play speed of the footsteps."), SerializeField, Range(.1f, .95f)]
+    private float footstepSpeed;
 
     private float stepTimer;
 
     public Events events;
 
-    [Tooltip("Horizontal sensitivity (X Axis)")] public float sensitivityX = 4;
+    [Tooltip("Horizontal sensitivity (X Axis)")]
+    public float sensitivityX = 4;
 
-    [Tooltip("Vertical sensitivity (Y Axis)")] public float sensitivityY = 4;
+    [Tooltip("Vertical sensitivity (Y Axis)")]
+    public float sensitivityY = 4;
 
-    [Tooltip("Horizontal sensitivity (X Axis) using controllers")] public float controllerSensitivityX = 35;
+    [Tooltip("Horizontal sensitivity (X Axis) using controllers")]
+    public float controllerSensitivityX = 35;
 
-    [Tooltip("Vertical sensitivity (Y Axis) using controllers")] public float controllerSensitivityY = 35;
+    [Tooltip("Vertical sensitivity (Y Axis) using controllers")]
+    public float controllerSensitivityY = 35;
 
-    [Range(.1f, 1f), Tooltip("Sensitivity will be multiplied by this value when aiming")] public float aimingSensitivityMultiplier = .4f;
+    [Range(.1f, 1f), Tooltip("Sensitivity will be multiplied by this value when aiming")]
+    public float aimingSensitivityMultiplier = .4f;
 
-    [Tooltip("Default field of view of your camera"), Range(1, 179)] public float normalFOV;
+    [Tooltip("Default field of view of your camera"), Range(1, 179)]
+    public float normalFOV;
 
-    [Tooltip("Running field of view of your camera"), Range(1, 179)] public float runningFOV;
+    [Tooltip("Running field of view of your camera"), Range(1, 179)]
+    public float runningFOV;
 
-    [Tooltip("Wallrunning field of view of your camera"), Range(1, 179)] public float wallrunningFOV;
+    [Tooltip("Wallrunning field of view of your camera"), Range(1, 179)]
+    public float wallrunningFOV;
 
-    [Tooltip("Fade Speed - Start Transition for the field of view")] public float fadeInFOVAmount;
+    [Tooltip("Fade Speed - Start Transition for the field of view")]
+    public float fadeInFOVAmount;
 
-    [Tooltip("Fade Speed - Finish Transition for the field of view")] public float fadeOutFOVAmount;
+    [Tooltip("Fade Speed - Finish Transition for the field of view")]
+    public float fadeOutFOVAmount;
 
     #endregion
 
     private void Awake() => GetAllReferences();
+
     private void Start()
     {
-
         playerScale = transform.localScale;
         canRun = true;
         canJump = true;
@@ -371,29 +451,35 @@ public class PlayerMovement : MonoBehaviour
         Stamina();
         if (canWallBounce) CheckOppositeWall();
 
-        if (InputManager.jumping && wallOpposite && canWallBounce && PlayerStats.Controllable && InputManager.y > 0 && CheckHeight()) WallBounce();
+        if (InputManager.jumping && wallOpposite && canWallBounce && PlayerStats.Controllable && InputManager.y > 0 &&
+            CheckHeight()) WallBounce();
         if (!PlayerStats.Controllable) return;
 
         if (canWallRun)
         {
             CheckWalls();
-            if (InputManager.y > 0 && (wallLeft || wallRight) && CheckHeight() && rb.velocity.magnitude > walkSpeed) WallRun();
+            if (InputManager.y > 0 && (wallLeft || wallRight) && CheckHeight() &&
+                rb.velocity.magnitude > walkSpeed) WallRun();
             else StopWallRun();
         }
     }
+
     public void HandleVelocities()
     {
-
         HandleSpeedLines();
-        if (isCrouching) return;
+        if (_isCrouching)
+            return;
+
         if (weapon.weapon != null && weapon.isAiming && weapon.weapon.setMovementSpeedWhileAiming)
         {
             currentSpeed = weapon.weapon.movementSpeedWhileAiming;
             return;
         }
+
         if ((InputManager.sprinting || autoRun) && canRun)
         {
-            if (!canRunBackwards && InputManager.y < 0 || !canRunWhileShooting && InputManager.shooting && weapon.weapon != null)
+            if (!canRunBackwards && InputManager.y < 0 ||
+                !canRunWhileShooting && InputManager.shooting && weapon.weapon != null)
                 currentSpeed = Mathf.MoveTowards(currentSpeed, walkSpeed, Time.deltaTime * loseSpeedDeceleration);
             if (canRunBackwards || !canRunBackwards && Vector3.Dot(orientation.forward, rb.velocity) > 0)
             {
@@ -420,15 +506,17 @@ public class PlayerMovement : MonoBehaviour
         var emission = speedLines.emission;
         emission.rateOverTime = (rb.velocity.magnitude > runSpeed) ? 200 * speedLinesAmount : 70 * speedLinesAmount;
     }
+
     public void StartCrouch()
     {
-        isCrouching = true;
+        _isCrouching = true;
         currentSpeed = crouchSpeed;
 
         if (rb.velocity.magnitude >= walkSpeed && grounded && allowSliding && !hasJumped)
-        { // Handle sliding
+        {
+            // Handle sliding
             events.OnSlide.Invoke(); // Invoke your own method on the moment you slid NOT WHILE YOU ARE SLIDING
-                                     // Add the force on slide
+            // Add the force on slide
             rb.AddForce(orientation.transform.forward * slideForce);
             //staminaLoss
             if (usesStamina) stamina -= staminaLossOnSlide;
@@ -437,8 +525,10 @@ public class PlayerMovement : MonoBehaviour
 
     public void StopCrouch()
     {
-        isCrouching = false;
-        transform.localScale = Vector3.MoveTowards(transform.localScale, playerScale, Time.deltaTime * crouchTransitionSpeed);
+        _isCrouching = false;
+
+        transform.localScale =
+            Vector3.MoveTowards(transform.localScale, playerScale, Time.deltaTime * crouchTransitionSpeed);
     }
 
     void Stamina()
@@ -459,20 +549,23 @@ public class PlayerMovement : MonoBehaviour
         // Wait for stamina to regenerate up to the min value allowed to start running and jumping again
         if (stamina >= minStaminaRequiredToRun)
         {
-            canRun = true; canJump = true;
+            canRun = true;
+            canJump = true;
         }
 
         // Regen stamina
         if (stamina < maxStamina)
         {
             if (currentSpeed <= walkSpeed && !LoseStaminaWalking
-                || currentSpeed < runSpeed && (!LoseStaminaWalking || LoseStaminaWalking && InputManager.x == 0 && InputManager.y == 0))
+                || currentSpeed < runSpeed && (!LoseStaminaWalking ||
+                                               LoseStaminaWalking && InputManager.x == 0 && InputManager.y == 0))
                 stamina += Time.deltaTime * staminaRegenMultiplier;
         }
 
         // Lose stamina
-        if (currentSpeed == runSpeed && canRun && !wallRunning) stamina -= Time.deltaTime;
-        if (currentSpeed < runSpeed && LoseStaminaWalking && (InputManager.x != 0 || InputManager.y != 0)) stamina -= Time.deltaTime * (walkSpeed / runSpeed);
+        if (Mathf.Approximately(currentSpeed, runSpeed) && canRun && !wallRunning) stamina -= Time.deltaTime;
+        if (currentSpeed < runSpeed && LoseStaminaWalking && (InputManager.x != 0 || InputManager.y != 0))
+            stamina -= Time.deltaTime * (walkSpeed / runSpeed);
 
         // Stamina UI not found might be a problem, it won´t be shown but you will get notified 
         if (staminaSlider == null)
@@ -496,7 +589,6 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     public void Movement(bool move)
     {
-
         //Extra gravity
         rb.AddForce(Vector3.down * Time.deltaTime * 10);
 
@@ -520,8 +612,10 @@ public class PlayerMovement : MonoBehaviour
 
         if (!move) return;
 
-        rb.AddForce(orientation.transform.forward * InputManager.y * acceleration * Time.deltaTime * multiplier * multiplierV / multiplier2);
-        rb.AddForce(orientation.transform.right * InputManager.x * acceleration * Time.deltaTime * multiplier / multiplier2);
+        rb.AddForce(orientation.transform.forward * InputManager.y * acceleration * Time.deltaTime * multiplier *
+            multiplierV / multiplier2);
+        rb.AddForce(orientation.transform.right * InputManager.x * acceleration * Time.deltaTime * multiplier /
+                    multiplier2);
     }
 
     /// <summary>
@@ -543,9 +637,11 @@ public class PlayerMovement : MonoBehaviour
         if (stepTimer <= 0)
         {
             stepTimer = 1 - footstepSpeed;
-            _audio.pitch = UnityEngine.Random.Range(.7f, 1.3f); // Add variety to avoid boring and repetitive sounds while walking
+            _audio.pitch =
+                UnityEngine.Random.Range(.7f, 1.3f); // Add variety to avoid boring and repetitive sounds while walking
             // Remember that you can also add a few more sounds to each of the layers to add even more variety to your sfx.
-            if (Physics.Raycast(playerCam.position, Vector3.down, out RaycastHit hit, playerCam.position.y + .01f, whatIsGround))
+            if (Physics.Raycast(playerCam.position, Vector3.down, out RaycastHit hit, playerCam.position.y + .01f,
+                    whatIsGround))
             {
                 int i = 0;
                 switch (hit.transform.gameObject.layer)
@@ -603,13 +699,18 @@ public class PlayerMovement : MonoBehaviour
             {
                 if (Vector3.Dot(rb.velocity, new Vector3(InputManager.x, 0, InputManager.y)) > .5f)
                     rb.velocity = rb.velocity / 2;
-                if (directionalJumpMethod == DirectionalJumpMethod.InputBased) // Input based method for directional jumping
+                if (directionalJumpMethod ==
+                    DirectionalJumpMethod.InputBased) // Input based method for directional jumping
                 {
                     rb.AddForce(orientation.right * InputManager.x * directionalJumpForce, ForceMode.Impulse);
                     rb.AddForce(orientation.forward * InputManager.y * directionalJumpForce, ForceMode.Impulse);
                 }
-                if (directionalJumpMethod == DirectionalJumpMethod.ForwardMovement) // Forward Movement method for directional jumping, dependant on orientation
-                    rb.AddForce(orientation.forward * Mathf.Abs(InputManager.y) * directionalJumpForce, ForceMode.VelocityChange);
+
+                if (directionalJumpMethod ==
+                    DirectionalJumpMethod
+                        .ForwardMovement) // Forward Movement method for directional jumping, dependant on orientation
+                    rb.AddForce(orientation.forward * Mathf.Abs(InputManager.y) * directionalJumpForce,
+                        ForceMode.VelocityChange);
             }
 
             //If jumping while falling, reset y velocity.
@@ -628,6 +729,7 @@ public class PlayerMovement : MonoBehaviour
     private float coyoteTimer;
 
     public bool canCoyote;
+
     public void HandleCoyoteJump()
     {
         if (grounded) coyoteTimer = 0;
@@ -636,22 +738,27 @@ public class PlayerMovement : MonoBehaviour
         if (hasJumped) return;
         canCoyote = coyoteTimer > 0 && readyToJump;
     }
+
     private void ResetJump() => readyToJump = true;
 
     private float wallRunRotation;
+
     /// <summary>
     /// Handle all the basics related to camera movement 
     /// </summary>
     public void Look()
     {
-
         int inverted = (InputManager.invertedAxis) ? -1 : 1;
 
         float sensM = (weapon.isAiming) ? InputManager.aimingSensitivityMultiplier : 1;
 
         //Handle the camera movement and look based on the inputs received by the user
-        float mouseX = (InputManager.mousex * InputManager.sensitivity_x * Time.fixedDeltaTime + InputManager.controllerx * InputManager.controllerSensitivityX * Time.fixedDeltaTime) * inverted * sensM;
-        float mouseY = (InputManager.mousey * InputManager.sensitivity_y * Time.fixedDeltaTime * inverted + InputManager.controllery * InputManager.controllerSensitivityY * Time.fixedDeltaTime * -inverted) * sensM;
+        float mouseX =
+            (InputManager.mousex * InputManager.sensitivity_x * Time.fixedDeltaTime + InputManager.controllerx *
+                InputManager.controllerSensitivityX * Time.fixedDeltaTime) * inverted * sensM;
+        float mouseY = (InputManager.mousey * InputManager.sensitivity_y * Time.fixedDeltaTime * inverted +
+                        InputManager.controllery * InputManager.controllerSensitivityY * Time.fixedDeltaTime *
+                        -inverted) * sensM;
 
         //Find current look rotation
         Vector3 rot = playerCam.transform.localRotation.eulerAngles;
@@ -659,20 +766,26 @@ public class PlayerMovement : MonoBehaviour
 
         //Rotate, and also make sure we dont over- or under-rotate.
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -89.7f, 89.7f); // The reason why the value is 89.7 instead of 90 is to prevent errors with the wallrun
-        if (wallRunning && canWallRun) wallRunRotation = wallLeft ? Mathf.Lerp(wallRunRotation, -wallrunCameraTiltAmount, Time.deltaTime * cameraTiltTransationSpeed) : Mathf.Lerp(wallRunRotation, wallrunCameraTiltAmount, Time.deltaTime * cameraTiltTransationSpeed);
+        xRotation = Mathf.Clamp(xRotation, -89.7f,
+            89.7f); // The reason why the value is 89.7 instead of 90 is to prevent errors with the wallrun
+        if (wallRunning && canWallRun)
+            wallRunRotation = wallLeft
+                ? Mathf.Lerp(wallRunRotation, -wallrunCameraTiltAmount, Time.deltaTime * cameraTiltTransationSpeed)
+                : Mathf.Lerp(wallRunRotation, wallrunCameraTiltAmount, Time.deltaTime * cameraTiltTransationSpeed);
         else wallRunRotation = Mathf.Lerp(wallRunRotation, 0, Time.deltaTime * cameraTiltTransationSpeed);
         //Perform the rotations on: 
         playerCam.transform.localRotation = Quaternion.Euler(xRotation, desiredX, wallRunRotation); // the camera parent
         orientation.transform.localRotation = Quaternion.Euler(0, desiredX, 0); // the orientation
 
         // Decide wether to use aim assist or not
-        if (AimAssistHit() == null || !applyAimAssist || target == null || Vector3.Distance(target.position, transform.position) > maximumDistanceToAssistAim) return;
+        if (AimAssistHit() == null || !applyAimAssist || target == null ||
+            Vector3.Distance(target.position, transform.position) > maximumDistanceToAssistAim) return;
         // Get the direction to look at
         Vector3 direction = (AimAssistHit().position - transform.position).normalized;
         Quaternion targetRotation = transform.rotation * Quaternion.FromToRotation(transform.forward, direction);
         // Smoothly override our current camera rotation towards the selected enemy
-        playerCam.transform.localRotation = Quaternion.Lerp(playerCam.transform.localRotation, targetRotation, Time.deltaTime * aimAssistSpeed);
+        playerCam.transform.localRotation = Quaternion.Lerp(playerCam.transform.localRotation, targetRotation,
+            Time.deltaTime * aimAssistSpeed);
     }
 
     /// <summary>
@@ -693,9 +806,11 @@ public class PlayerMovement : MonoBehaviour
 
         // Counter movement ( Friction while moving )
         // Prevent from sliding not on purpose
-        if (Math.Abs(mag.x) > threshold && Math.Abs(x) < 0.05f || (mag.x < -threshold && x > 0) || (mag.x > threshold && x < 0))
+        if (Math.Abs(mag.x) > threshold && Math.Abs(x) < 0.05f || (mag.x < -threshold && x > 0) ||
+            (mag.x > threshold && x < 0))
             rb.AddForce(acceleration * orientation.transform.right * Time.deltaTime * -mag.x * frictionForceAmount);
-        if (Math.Abs(mag.y) > threshold && Math.Abs(y) < 0.05f || (mag.y < -threshold && y > 0) || (mag.y > threshold && y < 0))
+        if (Math.Abs(mag.y) > threshold && Math.Abs(y) < 0.05f || (mag.y < -threshold && y > 0) ||
+            (mag.y > threshold && y < 0))
             rb.AddForce(acceleration * orientation.transform.forward * Time.deltaTime * -mag.y * frictionForceAmount);
 
 
@@ -727,6 +842,7 @@ public class PlayerMovement : MonoBehaviour
 
         return new Vector2(xMag, yMag);
     }
+
     /// <summary>
     /// Determine wether this is determined as floor or not
     /// </summary>
@@ -735,6 +851,7 @@ public class PlayerMovement : MonoBehaviour
         float angle = Vector3.Angle(Vector3.up, v);
         return angle < maxSlopeAngle;
     }
+
     /// <summary>
     /// Basically find everything the script needs to work
     /// </summary>
@@ -775,6 +892,7 @@ public class PlayerMovement : MonoBehaviour
                     jumpCount = maxJumps; // Reset jumps left
                     hasJumped = false;
                 }
+
                 grounded = true;
                 cancellingGrounded = false;
                 normalVector = normal;
@@ -803,11 +921,13 @@ public class PlayerMovement : MonoBehaviour
 
         // Detect our potential transform
         RaycastHit hit;
-        if (Physics.SphereCast(playerCam.transform.GetChild(0).position, aimAssistSensitivity, playerCam.transform.GetChild(0).transform.forward, out hit, range) && hit.transform.CompareTag("Enemy"))
+        if (Physics.SphereCast(playerCam.transform.GetChild(0).position, aimAssistSensitivity,
+                playerCam.transform.GetChild(0).transform.forward, out hit, range) && hit.transform.CompareTag("Enemy"))
         {
             target = hit.collider.transform;
         }
         else target = null;
+
         // Return our target
         return target;
     }
@@ -827,6 +947,7 @@ public class PlayerMovement : MonoBehaviour
             Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
         }
     }
+
     #region wallMovement
 
     public bool wallLeft { get; private set; }
@@ -834,13 +955,17 @@ public class PlayerMovement : MonoBehaviour
     public bool wallOpposite { get; private set; }
 
     private RaycastHit wallLeftHit, wallRightHit, wallOppositeHit;
+
     private void CheckWalls()
     {
         wallLeft = Physics.Raycast(transform.position, -orientation.right, out wallLeftHit, .8f, whatIsWallRunWall);
         wallRight = Physics.Raycast(transform.position, orientation.right, out wallRightHit, .8f, whatIsWallRunWall);
     }
 
-    private bool CheckHeight() { return !Physics.Raycast(transform.position, Vector3.down, wallMinimumHeight, whatIsWallRunWall); }
+    private bool CheckHeight()
+    {
+        return !Physics.Raycast(transform.position, Vector3.down, wallMinimumHeight, whatIsWallRunWall);
+    }
 
     private Vector3 wallNormal;
 
@@ -854,7 +979,8 @@ public class PlayerMovement : MonoBehaviour
         wallNormal = wallRight ? wallRightHit.normal : wallLeftHit.normal;
         wallDirection = Vector3.Cross(wallNormal, transform.up).normalized * 10;
         // Fixing wallrunning directions depending on the orientation 
-        if ((orientation.forward - wallDirection).magnitude > (orientation.forward + wallDirection).magnitude) wallDirection = -wallDirection;
+        if ((orientation.forward - wallDirection).magnitude > (orientation.forward + wallDirection).magnitude)
+            wallDirection = -wallDirection;
 
         // Handling WallRun Cancel
         if (OppositeVectors() < -.5f) StopWallRun();
@@ -877,11 +1003,10 @@ public class PlayerMovement : MonoBehaviour
         if (useGravity && rb.velocity.y < 0) rb.AddForce(transform.up * wallrunGravityCounterForce, ForceMode.Force);
         rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxWallRunSpeed);
 
-        if (!(wallRight && InputManager.x < 0) && !(wallLeft && InputManager.x > 0)) rb.AddForce(-wallNormal * 100, ForceMode.Force);
+        if (!(wallRight && InputManager.x < 0) && !(wallLeft && InputManager.x > 0))
+            rb.AddForce(-wallNormal * 100, ForceMode.Force);
 
         rb.AddForce(wallDirection, ForceMode.Force);
-
-
     }
 
     private void StartWallRunning()
@@ -902,15 +1027,20 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(wallNormal * stopWallRunningImpulse, ForceMode.Impulse);
             if (resetJumpsOnWallrun) jumpCount = maxJumps - 1;
         }
+
         wallRunning = false;
         rb.useGravity = true;
     }
 
-    private float OppositeVectors() { return Vector3.Dot(wallDirection, orientation.forward); }
+    private float OppositeVectors()
+    {
+        return Vector3.Dot(wallDirection, orientation.forward);
+    }
 
     private void CheckOppositeWall()
     {
-        wallOpposite = Physics.Raycast(transform.position, orientation.forward, out wallOppositeHit, oppositeWallDetectionDistance, whatIsWallRunWall);
+        wallOpposite = Physics.Raycast(transform.position, orientation.forward, out wallOppositeHit,
+            oppositeWallDetectionDistance, whatIsWallRunWall);
     }
 
     public void WallBounce()
@@ -921,9 +1051,13 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(direction * wallBounceForce, ForceMode.VelocityChange);
         rb.AddForce(transform.up * wallBounceUpwardsForce, ForceMode.Impulse);
     }
+
     #endregion
+
     #region dashing
+
     private List<GameObject> dashElements; // Stores the UI Elements required to display the current dashes amount
+
     private void RegainDash()
     {
         // Gain a dash
@@ -932,6 +1066,7 @@ public class PlayerMovement : MonoBehaviour
         var uiElement = Instantiate(dashUIElement, dashUIContainer);
         dashElements.Add(uiElement.gameObject);
     }
+
     public void RegainDash(object s, EventArgs e)
     {
         // Wait to regain a new dash
@@ -941,6 +1076,7 @@ public class PlayerMovement : MonoBehaviour
         dashElements.Remove(element);
         Destroy(element);
     }
+
     /// <summary>
     /// Draws the dash UI 
     /// </summary>
@@ -955,5 +1091,6 @@ public class PlayerMovement : MonoBehaviour
             i++;
         }
     }
+
     #endregion
 }

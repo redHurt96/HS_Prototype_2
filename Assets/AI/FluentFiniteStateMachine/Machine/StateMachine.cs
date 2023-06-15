@@ -30,6 +30,12 @@ namespace AI.FluentFiniteStateMachine
             return this;
         }
 
+        public StateMachine Run()
+        {
+            EnterCurrent();
+            return this;
+        }
+
         public void Update()
         {
             foreach (ITransition transition in _transitions)

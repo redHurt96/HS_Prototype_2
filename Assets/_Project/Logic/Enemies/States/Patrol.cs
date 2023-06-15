@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace _Project.Logic.Enemies.States
 {
-    internal class Patrol : State<Enemy>, IEnterState, IUpdateState, IExitState
+    internal class Patrol : State<Enemy>, IEnterState
     {
         private Transform TargetPoint => Context.PatrolPoints[_targetPointIndex];
-        
+
         private int _targetPointIndex;
 
         public Patrol(Enemy context) : base(context) {}
@@ -16,26 +16,11 @@ namespace _Project.Logic.Enemies.States
             if (Context.PatrolPoints.Length == 0)
                 return;
             
-            _targetPointIndex = 0;
+            _targetPointIndex = _targetPointIndex == Context.PatrolPoints.Length - 1
+                ? 0
+                : _targetPointIndex + 1;
+
             Context.MoveTo(TargetPoint);
         }
-
-        public void OnUpdate()
-        {
-            if (Context.PatrolPoints.Length == 0)
-                return;
-            
-            if (Context.ReachTarget())
-            {
-                _targetPointIndex = _targetPointIndex == Context.PatrolPoints.Length - 1
-                    ? 0
-                    : _targetPointIndex++;
-
-                Context.MoveTo(TargetPoint);
-            }
-        }
-
-        public void OnExit() => 
-            Context.Stop();
     }
 }

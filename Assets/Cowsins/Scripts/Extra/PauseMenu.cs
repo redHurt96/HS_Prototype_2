@@ -1,3 +1,4 @@
+using Cowsins.Player;
 using UnityEngine;
 
 namespace cowsins

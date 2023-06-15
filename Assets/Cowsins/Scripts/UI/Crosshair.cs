@@ -3,6 +3,7 @@
 /// </summary>
 using UnityEngine;
 using cowsins;
+using Cowsins.Player;
 
 public class Crosshair : MonoBehaviour
 {
